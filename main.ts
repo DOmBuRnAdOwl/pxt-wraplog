@@ -1,15 +1,87 @@
-/**
- * This file contain test code for extension development.
- * It will not be included or compiled when this package is added to a project as an extension
- */
+let arr = [];
+for(let i=0;i<40;i++){
+  let c = pins.createBuffer(10900);
+  c.fill(0);
+}
 
-basic.forever(() => {
-    basic.showNumber(banana.bananas(2))
-    basic.pause(1000)
-    basic.showNumber(banana.bananaAdd(2, 2))
-    basic.pause(1000)
-    basic.showNumber(banana.bananaMultiplier(3))
-    basic.pause(1000)
-    basic.showNumber(banana.bananasV2Only(3))
-    basic.pause(1000)
-})
+for(let i=0;i<20;i++){
+  let c = pins.createBuffer(11000);
+  c.fill(0);
+  basic.pause(50)
+  basic.showLeds(`
+      # # # # .
+      # # # # .
+      # # # # .
+      # # # # .
+      # # # # .
+      `)
+  basic.pause(50)
+  basic.showLeds(`
+      # # # . #
+      # # # . #
+      # # # . #
+      # # # . #
+      # # # . #
+      `)
+}
+
+
+// let c = pins.createBuffer(10900);
+// let c = pins.createBuffer(11000);
+basic.pause(2000)
+basic.showLeds(`
+    # # # # #
+    # # # # #
+    # # # # #
+    # # # # #
+    # # # # #
+    `)
+
+// let e = pins.createBuffer(11000);
+// e.fill(0)
+// basic.pause(2000)
+// basic.showLeds(`
+//     # # # # #
+//     # # # # #
+//     # # # # #
+//     # # # # #
+//     # # # # .
+//     `)
+
+basic.pause(20000)
+
+basic.showLeds(`
+    # # # # #
+    # # # # #
+    # # # # #
+    # # # # #
+    # # # # #
+    `)
+
+// wraplogger.createBufferWithColumns(
+// "x",
+// "y"
+// )
+// basic.showIcon(IconNames.Heart)
+// for (let index = 0; index < 50; index++) {
+//     wraplogger.logData(
+//     wraplogger.createCV("x", input.acceleration(Dimension.X)),
+//     wraplogger.createCV("y", input.acceleration(Dimension.Y))
+//     )
+//     basic.pause(20)
+// }
+// basic.showLeds(`
+//     . . . . .
+//     . . . . .
+//     . . # . .
+//     . . . . .
+//     . . . . .
+//     `)
+// wraplogger.saveBuffer()
+// basic.showLeds(`
+//     # # # # #
+//     # # # # #
+//     # # # # #
+//     # # # # #
+//     # # # # #
+//     `)
