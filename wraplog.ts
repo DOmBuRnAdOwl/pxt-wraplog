@@ -73,7 +73,7 @@ namespace wraplogger {
         }
 
         //% block="save buffer $this"
-        //% weight=110
+        //% weight=70
         //% this.defl=buffer
         //% this.shadow=variables_get
         saveBuffer(){
@@ -146,7 +146,7 @@ namespace wraplogger {
         //% inlineInputMode="variable"
         //% inlineInputModeLimit=1
         //% group="micro:bit (V2)"
-        //% weight=100 
+        //% weight=90
         logData(
             data1: wraplogger.ColumnValue,
             data2?: wraplogger.ColumnValue,
@@ -192,7 +192,7 @@ namespace wraplogger {
     //% inlineInputMode="variable"
     //% inlineInputModeLimit=1
     //% group="micro:bit (V2)"
-    //% weight=70
+    //% weight=100
     //% col1.shadow=wraplogger_columnfield
     //% col2.shadow=wraplogger_columnfield
     //% col3.shadow=wraplogger_columnfield
