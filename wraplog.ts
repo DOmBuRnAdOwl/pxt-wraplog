@@ -1,12 +1,12 @@
 //% color="#FF8000"
 namespace wraplogger {
     export class ColumnValue {
-        public value: string;
+        public value: number;
         constructor(
             public column: string,
-            value: any
+            value: number
         ) {
-            this.value = convertToText(value);
+            this.value = value;
         }
     }
 
@@ -75,7 +75,7 @@ namespace wraplogger {
         }
 
         logDataImpl(data:wraplogger.ColumnValue[]){
-            let dataMap: { [key: string]: string } = {};
+            let dataMap: { [key: string]: number } = {};
             
             // Populate dataMap with column values
             data.forEach(columnValue => {
@@ -92,7 +92,7 @@ namespace wraplogger {
 
             // Append each column value, or append 0 if the column is missing
             for (let col of this._columns) {
-                let toInsert = dataMap[col] !== undefined ? parseInt(dataMap[col]) : 0;
+                let toInsert = dataMap[col] !== undefined ? dataMap[col] : 0;
                 this._bufferInstance.append(toInsert);
             }
             this._insertedRows++;
