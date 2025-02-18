@@ -1,3 +1,11 @@
+enum wrapEvent{
+    //used to raise custom event
+    //not a reserved id
+    //https://rneacy.dev/mbv2/ubit/messagebus/#reserved-source-ids
+    MICROBIT_ID_WRAPLOG=4001,
+    MICROBIT_WRAPLOG_EVT_LOG_FULL=1
+}
+
 //% color="#FF8000"
 namespace wraplogger {
     export class ColumnValue {
@@ -20,7 +28,6 @@ namespace wraplogger {
     //% value.shadow=math_number
     //% column.shadow=wraplogger_columnfield
     //% blockId=wraploggercreatecolumnvalue
-    //% group="micro:bit (V2)"
     //% weight=80 
     export function createCV(column: string, value: any): ColumnValue {
         return new ColumnValue(column, value);
@@ -29,7 +36,6 @@ namespace wraplogger {
 
     //% block="$column"
     //% blockId=wraplogger_columnfield
-    //% group="micro:bit (V2)"
     //% blockHidden=true shim=TD_ID
     //% column.fieldEditor="autocomplete" column.fieldOptions.decompileLiterals=true
     //% column.fieldOptions.key="wraploggercolumn"
@@ -47,6 +53,7 @@ namespace wraplogger {
             this._columns = colHeaders;
             this._bufferInstance = new ringBuffer.circularBufferInstance(dataType);
         }
+
 
         /**
          * Get the maximum number of rows that can be stored in the table
@@ -96,6 +103,9 @@ namespace wraplogger {
                 this._bufferInstance.append(toInsert);
             }
             this._insertedRows++;
+            if(this._bufferInstance.full()){
+                control.raiseEvent(wrapEvent.MICROBIT_ID_WRAPLOG,wrapEvent.MICROBIT_WRAPLOG_EVT_LOG_FULL);
+            }
         }
 
         //% block="save table $this"
@@ -141,6 +151,7 @@ namespace wraplogger {
                     getIndex = (getIndex + 1) % maxInserts;
                 }
                 flashlog.endRow();
+
             }
          }
         
@@ -171,7 +182,6 @@ namespace wraplogger {
         //% data10.shadow=wraploggercreatecolumnvalue
         //% inlineInputMode="variable"
         //% inlineInputModeLimit=1
-        //% group="micro:bit (V2)"
         //% weight=90
         logData(
             data1: wraplogger.ColumnValue,
@@ -217,7 +227,6 @@ namespace wraplogger {
     //% blockId=wraploggercreatetable
     //% inlineInputMode="variable"
     //% inlineInputModeLimit=1
-    //% group="micro:bit (V2)"
     //% weight=100
     //% col1.shadow=wraplogger_columnfield
     //% col2.shadow=wraplogger_columnfield
@@ -272,7 +281,6 @@ namespace wraplogger {
     //% blockId=wraploggercreatetableAdv
     //% inlineInputMode="variable"
     //% inlineInputModeLimit=1
-    //% group="micro:bit (V2)"
     //% weight=100
     //% col1.shadow=wraplogger_columnfield
     //% col2.shadow=wraplogger_columnfield
@@ -310,6 +318,13 @@ namespace wraplogger {
         if (col9) columns.push(col9);
         if (col10) columns.push(col10);
         return new logger(columns,dataType);
+    }
+
+    //% block="on log full"
+    //% blockId="wraplogonlogfull"
+    //% weight=40
+    export function onLogFull(handler: () => void): void {
+        control.onEvent(wrapEvent.MICROBIT_ID_WRAPLOG,wrapEvent.MICROBIT_WRAPLOG_EVT_LOG_FULL,() => {handler();});
     }
 }
 
