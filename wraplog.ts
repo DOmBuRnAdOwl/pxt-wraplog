@@ -1,4 +1,3 @@
-//% color="#FF8000"
 namespace wraplogger {
     export class ColumnValue {
         public value: string;
@@ -42,10 +41,15 @@ namespace wraplogger {
         _insertedRows: number = 0;
         _lastTimestamp: number = -1;
         _bufferInstance: ringBuffer.circularBufferInstance = null;
-
-        constructor(colHeaders:string[]) {
+        _storingFloats: boolean = false;
+        constructor(colHeaders:string[],useFloat=false) {
             this._columns = colHeaders;
-            this._bufferInstance = new ringBuffer.circularBufferInstance();
+            if(useFloat){
+                this._bufferInstance = new ringBuffer.circularBufferInstance(useFloat=true);
+                this._storingFloats = true;
+            }else{
+                this._bufferInstance = new ringBuffer.circularBufferInstance();
+            }
         }
 
         /**
@@ -88,7 +92,7 @@ namespace wraplogger {
             this._lastTimestamp = currentTimestamp;
 
             // Append time difference to the buffer
-            this._bufferInstance.append(timeDifference);
+            this._bufferInstance.appendInt(timeDifference);
 
             // Append each column value, or append 0 if the column is missing
             for (let col of this._columns) {
@@ -129,7 +133,7 @@ namespace wraplogger {
                 flashlog.beginRow();
                 
                 // Log the cumulative time
-                let time = this._bufferInstance.get(getIndex);
+                let time = this._bufferInstance.getInt(getIndex);
                 flashlog.logData("time(ms)", "" + cumulativeTime);
                 cumulativeTime += time;
                 getIndex = (getIndex + 1) % maxInserts;
@@ -137,7 +141,7 @@ namespace wraplogger {
                 // Log each column value
                 for (let j = 0; j < this._columns.length; j++) {
                     let value = this._bufferInstance.get(getIndex);
-                    flashlog.logData(this._columns[j], "" + value);
+                    flashlog.logData(this._columns[j], convertToText(value));
                     getIndex = (getIndex + 1) % maxInserts;
                 }
                 flashlog.endRow();
@@ -214,7 +218,7 @@ namespace wraplogger {
      * @param col10 Title for tenth column to be added
      */
     //% block="create table columns $col1||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10"
-    //% blockId=wraploggercreatebuffer
+    //% blockId=wraploggercreatetable
     //% inlineInputMode="variable"
     //% inlineInputModeLimit=1
     //% group="micro:bit (V2)"
@@ -230,7 +234,7 @@ namespace wraplogger {
     //% col9.shadow=wraplogger_columnfield
     //% col10.shadow=wraplogger_columnfield
     //% blockSetVariable=table
-    export function createBufferWithColumns(
+    export function createTable(
         col1: string,
         col2?: string,
         col3?: string,
@@ -252,6 +256,66 @@ namespace wraplogger {
         if (col8) columns.push(col8);
         if (col9) columns.push(col9);
         if (col10) columns.push(col10);
+        return new logger(columns);
+    }
+    /**
+     * Create a new buffer and set columns to be logged
+     * @param col1 Title for first column to be added
+     * @param col2 Title for second column to be added
+     * @param col3 Title for third column to be added
+     * @param col4 Title for fourth column to be added
+     * @param col5 Title for fifth column to be added
+     * @param col6 Title for sixth column to be added
+     * @param col7 Title for seventh column to be added
+     * @param col8 Title for eighth column to be added
+     * @param col9 Title for ninth column to be added
+     * @param col10 Title for tenth column to be added
+     */
+    //% block="create table ||storing $useFloat with columns $col1||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10"
+    //% useFloat.defl=StoreChoice.Float
+    //% blockId=wraploggercreatetableadv
+    //% inlineInputMode="variable"
+    //% inlineInputModeLimit=1
+    //% group="micro:bit (V2)"
+    //% weight=100
+    //% col1.shadow=wraplogger_columnfield
+    //% col2.shadow=wraplogger_columnfield
+    //% col3.shadow=wraplogger_columnfield
+    //% col4.shadow=wraplogger_columnfield
+    //% col5.shadow=wraplogger_columnfield
+    //% col6.shadow=wraplogger_columnfield
+    //% col7.shadow=wraplogger_columnfield
+    //% col8.shadow=wraplogger_columnfield
+    //% col9.shadow=wraplogger_columnfield
+    //% col10.shadow=wraplogger_columnfield
+    //% blockSetVariable=table
+    //% advanced=true
+    export function createTableAdvanced(
+        useFloat:StoreChoice=StoreChoice.Integer,
+        col1: string,
+        col2?: string,
+        col3?: string,
+        col4?: string,
+        col5?: string,
+        col6?: string,
+        col7?: string,
+        col8?: string,
+        col9?: string,
+        col10?: string
+    ) : logger {
+        let columns = [col1];
+        if (col2) columns.push(col2);
+        if (col3) columns.push(col3);
+        if (col4) columns.push(col4);
+        if (col5) columns.push(col5);
+        if (col6) columns.push(col6);
+        if (col7) columns.push(col7);
+        if (col8) columns.push(col8);
+        if (col9) columns.push(col9);
+        if (col10) columns.push(col10);
+        if(useFloat==StoreChoice.Float){
+            return new logger(columns,true);
+        }
         return new logger(columns);
     }
 }
