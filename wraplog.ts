@@ -1,9 +1,9 @@
-enum wrapEvent{
+enum wrapEvent {
     //used to raise custom event
     //not a reserved id
     //https://rneacy.dev/mbv2/ubit/messagebus/#reserved-source-ids
-    MICROBIT_ID_WRAPLOG=4001,
-    MICROBIT_WRAPLOG_EVT_LOG_FULL=1
+    MICROBIT_ID_WRAPLOG = 4001,
+    MICROBIT_WRAPLOG_EVT_LOG_FULL = 1
 }
 
 //% color="#FF8000"
@@ -49,7 +49,7 @@ namespace wraplogger {
         _lastTimestamp: number = -1;
         _bufferInstance: ringBuffer.circularBufferInstance = null;
 
-        constructor(colHeaders:string[],dataType:StoreChoice=StoreChoice.Integer) {
+        constructor(colHeaders: string[], dataType: StoreChoice = StoreChoice.Integer) {
             this._columns = colHeaders;
             this._bufferInstance = new ringBuffer.circularBufferInstance(dataType);
         }
@@ -77,13 +77,13 @@ namespace wraplogger {
         //% weight=50
         //% this.defl=table
         //% this.shadow=variables_get
-        populatedRows():number {
-            return Math.min(this._insertedRows,this.maxRows());
+        populatedRows(): number {
+            return Math.min(this._insertedRows, this.maxRows());
         }
 
-        logDataImpl(data:wraplogger.ColumnValue[]){
+        logDataImpl(data: wraplogger.ColumnValue[]) {
             let dataMap: { [key: string]: number } = {};
-            
+
             // Populate dataMap with column values
             data.forEach(columnValue => {
                 dataMap[columnValue.column] = columnValue.value;
@@ -103,8 +103,8 @@ namespace wraplogger {
                 this._bufferInstance.append(toInsert);
             }
             this._insertedRows++;
-            if(this._bufferInstance.full()){
-                control.raiseEvent(wrapEvent.MICROBIT_ID_WRAPLOG,wrapEvent.MICROBIT_WRAPLOG_EVT_LOG_FULL);
+            if (this._bufferInstance.full()) {
+                control.raiseEvent(wrapEvent.MICROBIT_ID_WRAPLOG, wrapEvent.MICROBIT_WRAPLOG_EVT_LOG_FULL);
             }
         }
 
@@ -112,9 +112,9 @@ namespace wraplogger {
         //% weight=70
         //% this.defl=table
         //% this.shadow=variables_get
-        saveBuffer(){
+        saveBuffer() {
             flashlog.clear(true);
-            flashlog.setTimeStamp(FlashLogTimeStampFormat.None); // Don’t include current timestamps
+            flashlog.setTimeStamp(FlashLogTimeStampFormat.None); // Don't include current timestamps
 
             // First log the column titles with empty values
             flashlog.beginRow();
@@ -137,7 +137,7 @@ namespace wraplogger {
             let cumulativeTime = 0;
             for (let i = 0; i < count; i++) {
                 flashlog.beginRow();
-                
+
                 // Log the cumulative time
                 let time = this._bufferInstance.getInt(getIndex);
                 flashlog.logData("time(ms)", convertToText(cumulativeTime));
@@ -147,14 +147,15 @@ namespace wraplogger {
                 // Log each column value
                 for (let j = 0; j < this._columns.length; j++) {
                     let value = this._bufferInstance.get(getIndex);
+                    serial.writeLine("" + value);
                     flashlog.logData(this._columns[j], convertToText(value));
                     getIndex = (getIndex + 1) % maxInserts;
                 }
                 flashlog.endRow();
 
             }
-         }
-        
+        }
+
 
         /**
          * Log data to buffer
@@ -195,7 +196,7 @@ namespace wraplogger {
             data9?: wraplogger.ColumnValue,
             data10?: wraplogger.ColumnValue
         ): void {
-            let dataToStore:wraplogger.ColumnValue[]=[];
+            let dataToStore: wraplogger.ColumnValue[] = [];
             dataToStore.push(data1);
             if (data2) dataToStore.push(data2);
             if (data3) dataToStore.push(data3);
@@ -207,6 +208,7 @@ namespace wraplogger {
             if (data9) dataToStore.push(data9);
             if (data10) dataToStore.push(data10);
             this.logDataImpl(dataToStore);
+            serial.writeLine("" + data1.value);
         }
     }
 
@@ -250,7 +252,7 @@ namespace wraplogger {
         col8?: string,
         col9?: string,
         col10?: string
-    ) : logger {
+    ): logger {
         let columns = [col1];
         if (col2) columns.push(col2);
         if (col3) columns.push(col3);
@@ -295,7 +297,7 @@ namespace wraplogger {
     //% blockSetVariable=table
     //% advanced=true
     export function createTableAdv(
-        dataType:StoreChoice=StoreChoice.Integer,
+        dataType: StoreChoice = StoreChoice.Integer,
         col1: string,
         col2?: string,
         col3?: string,
@@ -306,7 +308,7 @@ namespace wraplogger {
         col8?: string,
         col9?: string,
         col10?: string
-    ) : logger {
+    ): logger {
         let columns = [col1];
         if (col2) columns.push(col2);
         if (col3) columns.push(col3);
@@ -317,14 +319,13 @@ namespace wraplogger {
         if (col8) columns.push(col8);
         if (col9) columns.push(col9);
         if (col10) columns.push(col10);
-        return new logger(columns,dataType);
+        return new logger(columns, dataType);
     }
 
     //% block="on log full"
     //% blockId="wraplogonlogfull"
     //% weight=40
     export function onLogFull(handler: () => void): void {
-        control.onEvent(wrapEvent.MICROBIT_ID_WRAPLOG,wrapEvent.MICROBIT_WRAPLOG_EVT_LOG_FULL,() => {handler();});
+        control.onEvent(wrapEvent.MICROBIT_ID_WRAPLOG, wrapEvent.MICROBIT_WRAPLOG_EVT_LOG_FULL, () => { handler(); });
     }
 }
-
