@@ -1,14 +1,9 @@
-
 //% color="#EB32D5" weight=100
 namespace wraplogger {
-    let maxSamples = 100;
-    let maxRows = 0;
-    let times_buffer: Buffer;
-    let values_buffer: Buffer;
-    let tail = 0;
-    let head = 0;
-    let colNames = [""];
-    let isFull = false;
+    let columns: string[] = [];
+    let insertedRows: number = 0;
+    let lastTimestamp: number = -1;
+    let bufferInstance: ringBuffer.circularBufferInstance = null;
 
     export class ColumnValue {
         public value: string;
@@ -88,11 +83,19 @@ namespace wraplogger {
         col9?: string,
         col10?: string
     ) : void {
-        let tmpColumns = [col1, col2, col3, col4, col5, col6, col7, col8, col9, col10];
-        colNames = tmpColumns.map(el => (!!el ? el : null)).filter(el => el !== null);
-        maxRows = Math.floor(maxSamples/(colNames.length +1));
-        values_buffer = pins.createBuffer(maxRows* 2*(colNames.length));
-        times_buffer = pins.createBuffer(maxRows* 2);
+        columns = [col1];
+        if (col2) columns.push(col2);
+        if (col3) columns.push(col3);
+        if (col4) columns.push(col4);
+        if (col5) columns.push(col5);
+        if (col6) columns.push(col6);
+        if (col7) columns.push(col7);
+        if (col8) columns.push(col8);
+        if (col9) columns.push(col9);
+        if (col10) columns.push(col10);
+        bufferInstance = new ringBuffer.circularBufferInstance();
+        insertedRows = 0;
+        lastTimestamp = -1;
     }
 
     /**
@@ -133,25 +136,33 @@ namespace wraplogger {
         data9?: wraplogger.ColumnValue,
         data10?: wraplogger.ColumnValue
     ): void {
-        let insertIndex = head % maxRows;
-        let tmpData = [ data1, data2, data3, data4, data5, data6, data7, data8, data9, data10 ];
+        let dataMap: { [key: string]: string } = {};
+        dataMap[data1.column] = data1.value;
+        if (data2) dataMap[data2.column] = data2.value;
+        if (data3) dataMap[data3.column] = data3.value;
+        if (data4) dataMap[data4.column] = data4.value;
+        if (data5) dataMap[data5.column] = data5.value;
+        if (data6) dataMap[data6.column] = data6.value;
+        if (data7) dataMap[data7.column] = data7.value;
+        if (data8) dataMap[data8.column] = data8.value;
+        if (data9) dataMap[data9.column] = data9.value;
+        if (data10) dataMap[data10.column] = data10.value;
 
+        // Add timestamp and calculate the time difference
+        let currentTimestamp = control.millis();
+        let timeDifference = lastTimestamp === -1 ? 0 : currentTimestamp - lastTimestamp;
+        lastTimestamp = currentTimestamp;
 
+        // Append time difference to the buffer
+        bufferInstance.append(timeDifference);
 
-        times_buffer.setNumber(NumberFormat.Int16LE, insertIndex* 2,control.millis());
-
-        let tmpIndex=0;
-        for(const elem of tmpData){
-            if(!!elem){
-                values_buffer.setNumber(NumberFormat.Int16LE, (insertIndex* 2)+tmpIndex*2, parseInt(elem.value));
-                tmpIndex+=1;
-            }
+        // Append each column value, or append 0 if the column is missing
+        for (let col of columns) {
+            let toInsert = dataMap[col] !== undefined ? parseInt(dataMap[col]) : 0;
+            bufferInstance.append(toInsert);
         }
-        head= (head+1)%maxRows;
-        if(head === tail){
-            tail = (tail+1)%maxRows;
-            isFull=true;
-        }
+
+        insertedRows++;
     }
 
 
@@ -161,30 +172,46 @@ namespace wraplogger {
     //% blockId=wraploggersavebuffer
     //% group="micro:bit (V2)"
     //% weight=60
-    export function saveBuffer() : void {
+    export function saveBuffer(): void {
         flashlog.clear(true);
-        flashlog.setTimeStamp(FlashLogTimeStampFormat.None); // dont include current timestamps
+        flashlog.setTimeStamp(FlashLogTimeStampFormat.None); // Don’t include current timestamps
 
-        // first log each column title as empty
+        // First log the column titles with empty values
         flashlog.beginRow();
-        flashlog.logData("times(ms)","");
-        for (let i=0;i<colNames.length;i++) {
-            flashlog.logData(colNames[i],"");
+        flashlog.logData("time(ms)", "");
+        for (let i = 0; i < columns.length; i++) {
+            flashlog.logData(columns[i], "");
         }
         flashlog.endRow();
 
-        let index = isFull ? tail :0;
-        let count = isFull ? maxRows : head;
-        let initialTime = times_buffer.getNumber(NumberFormat.Int16LE,index* 2);
-        for(let i=0;i<count;i++){
-            flashlog.beginRow();
-            flashlog.logData("times(ms)",""+(times_buffer.getNumber(NumberFormat.Int16LE,index* 2) - initialTime));
-            for (let j=0;j<colNames.length;j++) {
-                flashlog.logData(colNames[j],""+values_buffer.getNumber(NumberFormat.Int16LE, (index*2)+(j*2)));
-            }
-            flashlog.endRow();
-            index = (index+1)%maxRows;
+        let getIndex = 0;
+        let maxInserts = bufferInstance.getMaxElements();
+        let maxRows = Math.floor(maxInserts / (columns.length + 1));
+        let count = Math.min(insertedRows, maxRows);
+
+        // Adjust the starting index if there are more rows than maxRows
+        if (insertedRows > maxRows) {
+            getIndex = maxInserts % (columns.length + 1);
         }
 
+        let cumulativeTime = 0;
+        for (let i = 0; i < count; i++) {
+            flashlog.beginRow();
+            
+            // Log the cumulative time
+            let time = bufferInstance.get(getIndex);
+            flashlog.logData("time(ms)", "" + cumulativeTime);
+            cumulativeTime += time;
+            getIndex = (getIndex + 1) % maxInserts;
+
+            // Log each column value
+            for (let j = 0; j < columns.length; j++) {
+                let value = bufferInstance.get(getIndex);
+                flashlog.logData(columns[j], "" + value);
+                getIndex = (getIndex + 1) % maxInserts;
+            }
+
+            flashlog.endRow();
+        }
     }
 }
