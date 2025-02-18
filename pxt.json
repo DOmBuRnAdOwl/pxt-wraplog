@@ -10,7 +10,7 @@
     },
     "files": [
         "README.md",
-        "wraplog.ts",
+        "wraplog.ts"
     ],
     "testFiles": [],
     "public": true,
