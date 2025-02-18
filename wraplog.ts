@@ -1,26 +1,3 @@
-//TODO
-//when an unexpected float is inputted switch from storing ints
-//test memory constraints
-//better tooltips to explain the advanced usage
-//sometimes .append isn't picked up as a block for the float class
-
-enum StoreChoice{
-    //% block="Float"
-    Float=1,
-    //% block="Integer"
-    Integer=0
-
-}
-
-enum BufferMemorySize{
-    //% block="Low"
-    Low=1,
-    //% block="Medium"
-    Medium=2,
-    //% block="High"
-    High=3
-}
-
 //% color="#FF8000"
 namespace ringBuffer{
     export class circularBufferInstance{
