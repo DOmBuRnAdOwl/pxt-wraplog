@@ -43,13 +43,12 @@ namespace wraplogger {
         _lastTimestamp: number = -1;
         _bufferInstance: ringBuffer.circularBufferInstance = null;
         _storingFloats: boolean = false;
-        constructor(colHeaders:string[],useFloat=false) {
+        constructor(colHeaders:string[],dataType=StoreChoice.Integer) {
             this._columns = colHeaders;
-            if(useFloat){
-                this._bufferInstance = new ringBuffer.circularBufferInstance(StoreChoice.Float);
+            if(dataType==StoreChoice.Float){
                 this._storingFloats = true;
             }else{
-                this._bufferInstance = new ringBuffer.circularBufferInstance();
+                this._bufferInstance = new ringBuffer.circularBufferInstance(dataType);
             }
         }
 
@@ -272,8 +271,8 @@ namespace wraplogger {
      * @param col9 Title for ninth column to be added
      * @param col10 Title for tenth column to be added
      */
-    //% block="table storing $useFloat with columns $col1 ||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10"
-    //% useFloat.defl=StoreChoice.Float
+    //% block="table storing $dataType with columns $col1 ||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10"
+    //% dataType.defl=StoreChoice.Integer
     //% blockId=wraploggercreatetableadv
     //% inlineInputMode="variable"
     //% inlineInputModeLimit=1
@@ -292,7 +291,7 @@ namespace wraplogger {
     //% blockSetVariable=table
     //% advanced=true
     export function createTableAdvanced(
-        useFloat:StoreChoice=0,
+        dataType:StoreChoice=StoreChoice.Integer,
         col1: string,
         col2?: string,
         col3?: string,
@@ -314,9 +313,6 @@ namespace wraplogger {
         if (col8) columns.push(col8);
         if (col9) columns.push(col9);
         if (col10) columns.push(col10);
-        if(useFloat==StoreChoice.Float){
-            return new logger(columns,true);
-        }
-        return new logger(columns);
+        return new logger(columns,dataType);
     }
 }
