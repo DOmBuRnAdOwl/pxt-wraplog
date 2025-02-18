@@ -104,7 +104,7 @@ namespace wraplogger {
 
         //% block="save buffer $this"
         //% weight=70
-        //% this.defl=buffer
+        //% this.defl=table
         //% this.shadow=variables_get
         saveBuffer(){
             flashlog.clear(true);
