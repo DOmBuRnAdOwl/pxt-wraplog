@@ -63,6 +63,7 @@ namespace wraplogger {
         //% weight=50
         //% this.defl=table
         //% this.shadow=variables_get
+        //% group="Details"
         maxRows(): number {
             let maxInserts = this._bufferInstance.getMaxElements();
             let maxRows = Math.floor(maxInserts / (this._columns.length + 1));
@@ -77,6 +78,7 @@ namespace wraplogger {
         //% weight=50
         //% this.defl=table
         //% this.shadow=variables_get
+        //% group="Details"
         populatedRows(): number {
             return Math.min(this._insertedRows, this.maxRows());
         }
