@@ -46,7 +46,7 @@ namespace wraplogger {
         constructor(colHeaders:string[],useFloat=false) {
             this._columns = colHeaders;
             if(useFloat){
-                this._bufferInstance = new ringBuffer.circularBufferInstance(useFloat=true);
+                this._bufferInstance = new ringBuffer.circularBufferInstance(StoreChoice.Float);
                 this._storingFloats = true;
             }else{
                 this._bufferInstance = new ringBuffer.circularBufferInstance();
