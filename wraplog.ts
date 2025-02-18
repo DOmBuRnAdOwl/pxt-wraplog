@@ -48,6 +48,32 @@ namespace wraplogger {
             this._bufferInstance = new ringBuffer.circularBufferInstance();
         }
 
+        /**
+         * Get the maximum number of rows that can be stored in the table
+         * @returns the number of elements
+         */
+        //% block="max rows of $this"
+        //% weight=50
+        //% this.defl=table
+        //% this.shadow=variables_get
+        maxRows(): number {
+            let maxInserts = this._bufferInstance.getMaxElements();
+            let maxRows = Math.floor(maxInserts / (this._columns.length + 1));
+            return maxRows;
+        }
+
+        /**
+         * Get the current number of populated rows
+         * @returns the number of rows
+         */
+        //% block="current row count of $this"
+        //% weight=50
+        //% this.defl=table
+        //% this.shadow=variables_get
+        populatedRows():number {
+            return Math.min(this._insertedRows,this.maxRows());
+        }
+
         logDataImpl(data:wraplogger.ColumnValue[]){
             let dataMap: { [key: string]: string } = {};
             
