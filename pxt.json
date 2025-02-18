@@ -5,10 +5,8 @@
     "license": "MIT",
     "dependencies": {
         "core": "*",
-        "radio": "*",
-        "microphone": "*",
         "ringbuffer": "github:domburnadowl/pxt-ringbuffer#29f32c5ca9dd7f61492e35c380a003cea489a93c",
-        "datalogger": "*"
+        "flashlog": "*"
     },
     "files": [
         "README.md",
