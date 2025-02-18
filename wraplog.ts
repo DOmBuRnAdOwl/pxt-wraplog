@@ -1,4 +1,4 @@
-
+//% color="#FF8000"
 namespace wraplogger {
     export class ColumnValue {
         public value: string;
@@ -6,7 +6,7 @@ namespace wraplogger {
             public column: string,
             value: any
         ) {
-            this.value = "" + value;
+            this.value = convertToText(value);
         }
     }
 
@@ -42,14 +42,10 @@ namespace wraplogger {
         _insertedRows: number = 0;
         _lastTimestamp: number = -1;
         _bufferInstance: ringBuffer.circularBufferInstance = null;
-        _storingFloats: boolean = false;
-        constructor(colHeaders:string[],dataType=StoreChoice.Integer) {
+
+        constructor(colHeaders:string[],dataType:StoreChoice=StoreChoice.Integer) {
             this._columns = colHeaders;
-            if(dataType==StoreChoice.Float){
-                this._storingFloats = true;
-            }else{
-                this._bufferInstance = new ringBuffer.circularBufferInstance(dataType);
-            }
+            this._bufferInstance = new ringBuffer.circularBufferInstance(dataType);
         }
 
         /**
@@ -102,7 +98,7 @@ namespace wraplogger {
             this._insertedRows++;
         }
 
-        //% block="save buffer $this"
+        //% block="save table $this"
         //% weight=70
         //% this.defl=table
         //% this.shadow=variables_get
@@ -134,7 +130,7 @@ namespace wraplogger {
                 
                 // Log the cumulative time
                 let time = this._bufferInstance.getInt(getIndex);
-                flashlog.logData("time(ms)", "" + cumulativeTime);
+                flashlog.logData("time(ms)", convertToText(cumulativeTime));
                 cumulativeTime += time;
                 getIndex = (getIndex + 1) % maxInserts;
 
@@ -271,9 +267,9 @@ namespace wraplogger {
      * @param col9 Title for ninth column to be added
      * @param col10 Title for tenth column to be added
      */
-    //% block="table storing $dataType with columns $col1 ||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10"
+    //% block="table storing $dataType with columns $col1||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10"
     //% dataType.defl=StoreChoice.Integer
-    //% blockId=wraploggercreatetableadv
+    //% blockId=wraploggercreatetableAdv
     //% inlineInputMode="variable"
     //% inlineInputModeLimit=1
     //% group="micro:bit (V2)"
@@ -290,7 +286,7 @@ namespace wraplogger {
     //% col10.shadow=wraplogger_columnfield
     //% blockSetVariable=table
     //% advanced=true
-    export function createTableAdvanced(
+    export function createTableAdv(
         dataType:StoreChoice=StoreChoice.Integer,
         col1: string,
         col2?: string,
@@ -316,3 +312,4 @@ namespace wraplogger {
         return new logger(columns,dataType);
     }
 }
+
