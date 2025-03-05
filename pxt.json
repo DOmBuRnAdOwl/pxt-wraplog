@@ -5,7 +5,7 @@
     "license": "MIT",
     "dependencies": {
         "core": "*",
-        "ringbuffer": "github:domburnadowl/pxt-ringbuffer#2254a25b7556431aea06d1681f51f7001e5f0662",
+        "ringbuffer": "github:dexter-latcham/pxt-ringbuffer#2254a25b7556431aea06d1681f51f7001e5f0662",
         "flashlog": "*"
     },
     "files": [

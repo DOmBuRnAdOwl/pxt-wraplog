@@ -1,5 +1,5 @@
 
-> Open this page at [https://domburnadowl.github.io/pxt-wraplog/](https://domburnadowl.github.io/pxt-wraplog/)
+> Open this page at [https://dexter-latcham.github.io/pxt-wraplog/](https://dexter-latcham.github.io/pxt-wraplog/)
 
 ## Use as Extension
 
@@ -8,7 +8,7 @@ This repository can be added as an **extension** in MakeCode.
 * open [https://makecode.microbit.org/](https://makecode.microbit.org/)
 * click on **New Project**
 * click on **Extensions** under the gearwheel menu
-* search for **https://github.com/domburnadowl/pxt-wraplog** and import
+* search for **https://github.com/dexter-latcham/pxt-wraplog** and import
 
 ## Edit this project
 
@@ -16,7 +16,7 @@ To edit this repository in MakeCode.
 
 * open [https://makecode.microbit.org/](https://makecode.microbit.org/)
 * click on **Import** then click on **Import URL**
-* paste **https://github.com/domburnadowl/pxt-wraplog** and click import
+* paste **https://github.com/dexter-latcham/pxt-wraplog** and click import
 
 #### Metadata (used for search, rendering)
 
